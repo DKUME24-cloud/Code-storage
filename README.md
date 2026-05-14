@@ -9,7 +9,7 @@ warnings.filterwarnings('ignore')
 
 def generate_synthetic_data(num_samples=10000):
     np.random.seed(42)
-    
+%%    
     # 기본 차량 데이터 생성
     speed = np.random.uniform(0, 110, num_samples) # 차량 속도 (0~110 km/h)
     payload = np.random.choice([0, 10, 20], num_samples) # 적재 하중 (0t, 10t, 20t)
