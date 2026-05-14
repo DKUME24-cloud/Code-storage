@@ -7,9 +7,6 @@ from sklearn.metrics import classification_report, accuracy_score
 import warnings
 warnings.filterwarnings('ignore')
 
-# ==========================================
-# 1. 시뮬레이션용 가상 센서 데이터 생성 (Data Generation)
-# ==========================================
 def generate_synthetic_data(num_samples=10000):
     np.random.seed(42)
     
