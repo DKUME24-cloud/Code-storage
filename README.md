@@ -18,13 +18,13 @@ def generate_synthetic_data(num_samples=10000):
     # 카메라 및 레이더 거리 데이터 (목표물 거리 10m ~ 100m 가정)
     D_camera = np.random.uniform(10, 100, num_samples)
     
-    # 정상 상태의 노이즈 생성 (문서 기반)
+    # 정상 상태의 노이즈 생성 
     # 카메라 태생 오차 5~8% + 피칭(Pitching)으로 인한 오차 3~5%
     base_camera_error = np.random.uniform(0.05, 0.08, num_samples)
     pitching_noise = np.random.uniform(0.03, 0.05, num_samples) 
     
-    # 실제 오염 발생 여부 (Target Variable)
-    # 악천후일수록, 적재 하중이 높을수록(거동 불안정) 오염 확률 증가
+    # 실제 오염 발생 여부 
+    # 악천후일수록, 적재 하중이 높을수록 오염 확률 증가
     contamination_prob = 0.05 + (weather_v2x * 0.3) + (payload / 100)
     is_contaminated = np.random.binomial(1, np.clip(contamination_prob, 0, 1))
     
@@ -52,7 +52,7 @@ def generate_synthetic_data(num_samples=10000):
         'Target_Contaminated': is_contaminated # 1: 오염됨(클리닝 필요), 0: 정상(노이즈)
     })
     
-    # 센서 오차율(E) 실시간 산출 공식 적용
+    # 센서 오차율(E) 실시간 산출 공식 
     df['Error_Rate'] = (abs(df['D_camera'] - df['D_radar']) / df['D_camera']) * 100
     
     return df
@@ -69,7 +69,7 @@ y = df['Target_Contaminated']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # LightGBM 분류기 초기화 (경량화 추론 모델)
-# 연산량 감소를 위해 num_leaves와 max_depth를 보수적으로 설정
+# 연산량 감소 위해 num_leaves와 max_depth를 보수적 설정
 lgbm_model = lgb.LGBMClassifier(
     n_estimators=100,
     learning_rate=0.1,  # 문서의 Gradient Error Flow 보정률 η=0.1
@@ -83,13 +83,12 @@ lgbm_model.fit(X_train, y_train)
 
 # 모델 성능 평가
 y_pred = lgbm_model.predict(X_test)
-print("--- LightGBM 모델 성능 평가 ---")
+print("LightGBM 모델 성능 평가")
 print(classification_report(y_test, y_pred))
 
 
-# ==========================================
-# 3. 통합 제어 아키텍처 알고리즘 (Inference & Control)
-# ==========================================
+
+# 3. 통합 제어 아키텍처 알고리즘 
 def intelligent_cleaning_controller(real_time_data, model):
     """
     10ms 단위로 들어오는 실시간 데이터를 받아 클리닝 작동 여부를 판단하는 폐루프 제어 함수
@@ -129,8 +128,8 @@ def intelligent_cleaning_controller(real_time_data, model):
     else:
         print(f"[상태] 정상 주행 중 (오차율: {error_rate:.1f}%) -> 시스템 대기 (10ms 후 재평가)")
 
-# --- 실시간 제어 시뮬레이션 ---
-print("\n--- 실시간 통합 제어 시뮬레이션 ---")
+# 실시간 제어 시뮬레이션
+print("\n 실시간 통합 제어 시뮬레이션")
 # 테스트 케이스 1: 85km/h 주행, 맑음, 오염 발생 (오차 18%)
 test_case_1 = X_test.iloc[0]
 test_case_1['Speed'] = 85
